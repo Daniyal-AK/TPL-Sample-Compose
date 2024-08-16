@@ -1,0 +1,28 @@
+pluginManagement {
+    repositories {
+        google {
+            content {
+                includeGroupByRegex("com\\.android.*")
+                includeGroupByRegex("com\\.google.*")
+                includeGroupByRegex("androidx.*")
+            }
+        }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        jcenter()
+        maven {
+            url "https://api1.tplmaps.com/artifactory/example-repo-local/"
+            allowInsecureProtocol = true
+        }
+    }
+}
+
+rootProject.name = "TPL Sample Compose"
+include ':app'
