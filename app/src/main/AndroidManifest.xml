@@ -31,7 +31,7 @@
 
         <meta-data
             android:name="@string/metadata_name_api_key"
-            android:value="$2a$10$S0hDhKNNZgcC9JR6nPXDBDrUAqj8f5gDLP2a0lLGqCTfNKq5GpvY6"/>
+            android:value=""/>
 
 
     </application>
