@@ -1,7 +1,5 @@
 package com.app.tplsamplecompose
 
-import android.app.appsearch.SearchResult
-import android.app.appsearch.SearchResults
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -10,7 +8,15 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,7 +30,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,7 +56,6 @@ import com.tplmaps.sdk.places.LngLat
 import com.tplmaps.sdk.places.OnSearchResult
 import com.tplmaps.sdk.places.Params
 import com.tplmaps.sdk.places.Place
-import com.tplmaps.sdk.places.SearchHelper
 import com.tplmaps.sdk.places.SearchManager
 import com.tplmaps3d.CameraPosition
 import com.tplmaps3d.MapController
@@ -80,8 +90,6 @@ fun MapViewContainer() {
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
-
-
     // States to hold MapController and MapView
     var mapController by remember { mutableStateOf<MapController?>(null) }
     var mapView by remember { mutableStateOf<MapView?>(null) }
@@ -109,7 +117,7 @@ fun MapViewContainer() {
 
                 // Define a custom OnSearchResult listener
                  searchResultListener = object : OnSearchResult {
-                    override fun onSearchResult(results: ArrayList<com.tplmaps.sdk.places.Place>) {
+                    override fun onSearchResult(results: ArrayList<Place>) {
                         // Handle search results here
                         // For example, update the address state with the first result's details if needed
                         if (results.isNotEmpty()) {
@@ -126,26 +134,26 @@ fun MapViewContainer() {
                     }
 
                     override fun onSearchResultNotFound(params: Params, requestTimeInMS: Long) {
-                        Log.d("TAG", "onSearchResult: 2")
+                        Log.d("TAG", "$params")
 
                         // Handle no results
                     }
 
                     override fun onSearchRequestFailure(e: Exception) {
                         // Handle request failure
-                        Log.d("TAG", "onSearchResult: 3")
+                        Log.d("TAG", "$e")
 
                     }
 
                     override fun onSearchRequestCancel(params: Params, requestTimeInMS: Long) {
                         // Handle request cancel
-                        Log.d("TAG", "onSearchResult: 4")
+                        Log.d("TAG", "$params")
 
                     }
 
                     override fun onSearchRequestSuspended(errorMessage: String, params: Params, requestTimeInMS: Long) {
                         // Handle request suspension
-                        Log.d("TAG", "onSearchResult: 5")
+                        Log.d("TAG", "$errorMessage")
 
                     }
                 }
@@ -191,7 +199,7 @@ fun MapViewContainer() {
                             getUiSettings()?.showZoomControls = false
                             getUiSettings()?.showMyLocationButton (false)
                             getUiSettings()?.showCompass = false
-                            
+
                             setMyLocationEnabled(true, MapController.MyLocationArg.ZOOM_LOCATION_ON_FIRST_FIX)
 
                             setOnCameraChangeEndListener(object : MapController.OnCameraChangeEndListener {
@@ -235,7 +243,6 @@ fun MapViewContainer() {
             },
             modifier = Modifier.fillMaxSize()
         )
-
 
 
         //Pin Drop Image
@@ -314,8 +321,40 @@ fun MapViewContainer() {
 
 
         Column(modifier = Modifier.fillMaxWidth()) {
+
             //Top TextView
-            CustomCardView(address = address)
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+                ,
+                elevation = CardDefaults.elevatedCardElevation(10.dp),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                border = BorderStroke(1.dp, Color.Transparent) // Equivalent to transparent stroke
+
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(15.dp)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(
+                        text = "Selected Address:",
+                        color = Color.Black,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 17.sp
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = address,
+                        color = Color.Black,
+                        fontSize = 14.sp
+                    )
+                }
+            }
 
             // Search TextField
             Card(
@@ -395,7 +434,6 @@ fun MapViewContainer() {
                                         )
                                         searchResults=emptyList()
 
-
                                         // Clear the TextField
                                         searchQuery = ""
 
@@ -416,40 +454,4 @@ fun MapViewContainer() {
 }
 
 
-
-@Composable
-fun CustomCardView(address: String) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(10.dp)
-        ,
-        elevation = CardDefaults.elevatedCardElevation(10.dp),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(1.dp, Color.Transparent) // Equivalent to transparent stroke
-
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(15.dp)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.Start
-        ) {
-            Text(
-                text = "Selected Address:",
-                color = Color.Black,
-                fontWeight = FontWeight.Bold,
-                fontSize = 17.sp
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = address,
-                color = Color.Black,
-                fontSize = 14.sp
-            )
-        }
-    }
-}
 
